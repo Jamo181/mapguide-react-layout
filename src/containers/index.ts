@@ -21,3 +21,4 @@ export * from "./toolbar";
 export * from "./view-size";
 export * from "./viewer-options";
 export * from "./viewer-shim";
+export * from "./search";

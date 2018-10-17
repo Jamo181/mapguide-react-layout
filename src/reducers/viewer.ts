@@ -9,7 +9,7 @@ export const VIEWER_INITIAL_STATE: IViewerReducerState = {
     busyCount: 0,
     size: undefined,
     tool: ActiveMapTool.None,
-    featureTooltipsEnabled: true
+    featureTooltipsEnabled: false
 }
 
 export function viewerReducer(state = VIEWER_INITIAL_STATE, action: ViewerAction) {

@@ -122,6 +122,7 @@ import * as FlyoutActions from "../actions/flyout";
 import * as ModalActions from "../actions/modal";
 import * as TaskPaneActions from "../actions/taskpane";
 import * as TemplateActions from "../actions/template";
+import * as PBPLActions from "../actions/pbpl";
 
 /**
  * The top-level namespace for all dispatchable actions
@@ -132,5 +133,6 @@ export const Actions = {
     Flyout: FlyoutActions,
     Modal: ModalActions,
     TaskPane: TaskPaneActions,
-    Template: TemplateActions
+    Template: TemplateActions,
+    PBPL: PBPLActions
 }

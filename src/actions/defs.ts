@@ -9,6 +9,17 @@ import { ActionType } from '../constants/actions';
 import { PreparedSubMenuSet } from '../api/registry/command-spec';
 import { RuntimeMap } from '../api/contracts/runtime-map';
 import { QueryMapFeaturesResponse } from '../api';
+import { Plan } from '../api/contracts/pbpl/planregister';
+
+/**
+ * Opens a url in preview
+ * 
+ * @since 0.12
+ */
+export interface IShowURL {
+    type: ActionType.PBPL_SHOW_URL;
+    payload: string;
+}
 
 /**
  * Opens a flyout menu
@@ -524,3 +535,4 @@ export type ViewerAction = IOpenFlyoutAction
     | ILegendSetGroupExpandedAction
     | ILegendSetGroupSelectableAction
     | IMapRefreshAction
+    | IShowURL

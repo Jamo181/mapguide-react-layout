@@ -8,6 +8,7 @@ import { mapStateReducer } from "./map-state";
 import { viewerReducer } from "./viewer";
 import { mouseReducer } from "./mouse";
 import { templateReducer } from "./template";
+import { pbplReducer } from "./pbpl";
 
 const rootReducer: any = {
     initError: initErrorReducer,
@@ -19,7 +20,8 @@ const rootReducer: any = {
     taskpane: taskPaneReducer,
     modal: modalReducer,
     mouse: mouseReducer,
-    lastaction: lastAction
+    lastaction: lastAction,
+    pbpl: pbplReducer
 };
 
 export default rootReducer;

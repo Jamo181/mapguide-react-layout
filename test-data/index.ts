@@ -11,7 +11,8 @@ import {
     IViewerReducerState,
     IBranchedMapState,
     IMouseReducerState,
-    ITemplateReducerState
+    ITemplateReducerState,
+    IPBPLReducerState
 } from "../src/api/common";
 import * as Constants from "../src/constants";
 import { CONFIG_INITIAL_STATE } from "../src/reducers/config";
@@ -22,6 +23,7 @@ import { TOOLBAR_INITIAL_STATE } from "../src/reducers/toolbar";
 import { VIEWER_INITIAL_STATE } from "../src/reducers/viewer";
 import { MOUSE_INITIAL_STATE } from "../src/reducers/mouse";
 import { TEMPLATE_INITIAL_STATE } from "../src/reducers/template";
+import { PBPL_INITIAL_STATE } from "../src/reducers/pbpl";
 import { ActionType } from '../src/constants/actions';
 
 export function createMap(): any {
@@ -609,6 +611,7 @@ export function createInitialState(): IApplicationState {
     const mouse: IMouseReducerState = { ...MOUSE_INITIAL_STATE };
     const template: ITemplateReducerState = { ...TEMPLATE_INITIAL_STATE };
     const lastaction: any = null;
+    const pbpl: IPBPLReducerState = { ...PBPL_INITIAL_STATE };
     return {
         initError,
         config,
@@ -619,6 +622,7 @@ export function createInitialState(): IApplicationState {
         viewer,
         mouse,
         lastaction,
-        template
+        template,
+        pbpl
     };
 }

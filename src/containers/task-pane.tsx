@@ -63,6 +63,7 @@ function mapStateToProps(state: Readonly<IApplicationState>): Partial<ITaskPaneC
 }
 
 function mapDispatchToProps(dispatch: ReduxDispatch): Partial<ITaskPaneDispatch> {
+    console.log("somethign amazing!!!")
     return {
         invokeCommand: (cmd, parameters) => dispatch(invokeCommand(cmd, parameters)),
         goHome: () => dispatch(TaskPaneActions.goHome()),

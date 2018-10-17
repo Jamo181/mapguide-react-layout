@@ -23,3 +23,4 @@ export * from "./session-expired";
 export * from "./task-pane";
 export * from "./toolbar";
 export * from "./view-size";
+export * from "./search"

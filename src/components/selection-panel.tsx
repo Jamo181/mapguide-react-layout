@@ -9,6 +9,7 @@ import {
     SPRITE_ICON_ZOOMSELECT
 } from "../constants/assets";
 import { safePropAccess } from '../utils/safe-prop';
+import * as xml2js from "xml2js";
 
 export interface ISelectedFeatureProps {
     selectedFeature: SelectedFeature;
@@ -16,15 +17,16 @@ export interface ISelectedFeatureProps {
     locale: string;
     allowHtmlValues: boolean;
     cleanHTML?: (html: string) => string;
+    onSupportingFileClick?:(selectedURL: string) => void;
 }
 
 const DefaultSelectedFeature = (props: ISelectedFeatureProps) => {
-    const { selectedFeature, selectedLayer, locale, allowHtmlValues, cleanHTML } = props;
-    const featureProps = [] as FeatureProperty[];
+    const { selectedFeature, selectedLayer, locale, allowHtmlValues, cleanHTML, onSupportingFileClick } = props
+    const featureProps = [] as FeatureProperty[]
     for (const lp of selectedLayer.Property) {
         const matches = selectedFeature.Property.filter(fp => fp.Name === lp.DisplayName);
         if (matches.length === 1) {
-            featureProps.push(matches[0]);
+            featureProps.push(matches[0])
         }
     }
     return <table className="selection-panel-property-grid pt-table pt-condensed pt-bordered">
@@ -36,24 +38,119 @@ const DefaultSelectedFeature = (props: ISelectedFeatureProps) => {
         </thead>
         <tbody>
         {featureProps.map(prop => {
-            return <tr key={prop.Name}>
-                <td>{prop.Name}</td>
-                {(() => {
-                    let value = prop.Value;
-                    if (allowHtmlValues) {
-                        if (cleanHTML) {
-                            value = cleanHTML(value);
+            if ((prop.Name == "Supporting Files") && (prop.Value != null)) {
+                return PBPLComponentInfo_SupportingFiles(prop, props);
+            }else if((prop.Name == "Report Link") && (prop.Value != null)){
+                return PBPLReportLink(prop, props);
+            }else if((prop.Name == "Parcel Lot/Plan" || prop.Name == "Primary Parcel Lot/Plan") && (prop.Value != null)){
+                return PBPLSurveyPlanLink(prop, props);
+            }else{
+                return <tr key={prop.Name}>
+                    <td>{prop.Name}</td>
+                    {(() => {
+                        let value = prop.Value
+                        if (allowHtmlValues) {
+                            if (cleanHTML) {
+                                value = cleanHTML(value)
+                            }
+                            return <td dangerouslySetInnerHTML={{ __html: value }} />
+                        } else {
+                            return <td>{prop.Value}</td>
                         }
-                        return <td dangerouslySetInnerHTML={{ __html: value }} />
-                    } else {
-                        return <td>{prop.Value}</td>;
-                    }
-                })()}
-            </tr>;
+                    })()}
+                </tr>
+            }
         })}
         </tbody>
-    </table>;
+    </table>
 };
+
+const PBPLReportLink = (prop: FeatureProperty, props: ISelectedFeatureProps) => {
+    const {onSupportingFileClick} = props
+
+    function onFeatureSupportingFileClick(selectedURL:string){
+        if (onSupportingFileClick){
+            onSupportingFileClick(selectedURL)
+        }
+    }
+    let value = prop.Value;
+    return <tr key={prop.Name}>
+        <td>{prop.Name}</td>
+        <td><span className="pt-button pt-minimal pt-icon-box" title={prop.Value} onClick={() => onFeatureSupportingFileClick("https://objective.portbris.com.au/#/documents/" + prop.Value + "/details")} style={{ fontSize: "xx-small" }}>{prop.Value}</span></td>
+    </tr>
+    
+}
+
+const PBPLSurveyPlanLink = (prop: FeatureProperty, props: ISelectedFeatureProps) => {
+    const {onSupportingFileClick} = props
+
+    function onFeatureSupportingFileClick(selectedURL:string){
+        if (onSupportingFileClick){
+            onSupportingFileClick(selectedURL)
+        }
+    }
+    let value = prop.Value;
+    let plan = (prop.Value.indexOf("/")>-1?prop.Value.split("/")[1]:prop.Value);
+    return <tr key={prop.Name}>
+        <td>{prop.Name}</td>
+        <td><span className="pt-button pt-minimal pt-icon-map" title={prop.Value} onClick={() => onFeatureSupportingFileClick("http://gisdata/spatial_data/pdfs/" + plan + ".pdf")} style={{ fontSize: "xx-small" }}>{prop.Value}</span></td>
+    </tr>
+    
+}
+
+const PBPLComponentInfo_SupportingFiles = (prop: FeatureProperty, props: ISelectedFeatureProps) => {
+    const {onSupportingFileClick} = props
+    
+    function onFeatureSupportingFileClick(selectedURL:string){
+        if (onSupportingFileClick){
+            onSupportingFileClick(selectedURL);
+        }
+    }
+
+    var supportingFiles = [] as any[];
+                    xml2js.parseString(prop.Value,
+                        function (err:string, result:any) {
+                            supportingFiles = result.ComponentInfo_SupportingFiles.SupportingFile;
+                        }
+                    )
+    return <tr key={prop.Name}>
+        <td colSpan={2}>
+            <table className="selection-panel-property-grid pt-table pt-condensed pt-striped" style={{ fontSize: "xx-small" }}>
+                <caption>Supporting Files</caption>
+                <thead>
+                    <tr>
+                        <th>File</th>
+                        <th>Status</th>
+                        <th>Comment</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {supportingFiles.map((supportingFile, i) => {
+                        var fileName: string | null;
+                        fileName = supportingFile.FileName[0].match(new RegExp(/[^/]*$/))[0];
+                        
+                        // =.exec(supportingFile.file[0])[0];
+                        //if(fileName == null){ 
+                        //    fileName = "";
+                        //};
+                        //fileName = "somestring";
+                        if (supportingFile.FileType == "Image") {
+                            return <tr><td><span className="pt-button pt-minimal pt-icon-media" title={supportingFile.FileName[0]} onClick={() => onFeatureSupportingFileClick("http://gisdata/spatial_data/imagery/terrain" + supportingFile.FileName[0])} style={{ fontSize: "xx-small" }}>{fileName}</span></td><td>{supportingFile.FileStatus[0]}</td><td>{supportingFile.FileComment[0]}</td></tr>;
+                        } else if (supportingFile.FileType == "Plan") {
+                            return <tr><td><span className="pt-button pt-minimal pt-icon-map" title={supportingFile.FileName[0]} onClick={() => onFeatureSupportingFileClick("http://gisdata/spatial_data/pdfs/" + supportingFile.FileName[0] + ".pdf")} style={{ fontSize: "xx-small" }}>{fileName}</span></td><td>{supportingFile.FileStatus[0]}</td><td>{supportingFile.FileComment[0]}</td></tr>;
+                        } else if (supportingFile.FileType == "Survey") {
+                            return <tr><td><span className="pt-button pt-minimal pt-icon-map" title={supportingFile.FileName[0]} onClick={() => onFeatureSupportingFileClick("http://gisdata/spatial_data/pdfs/" + supportingFile.FileName[0]) + ".pdf"} style={{ fontSize: "xx-small" }}>{fileName}</span></td><td>{supportingFile.FileStatus[0]}</td><td>{supportingFile.FileComment[0]}</td></tr>;
+                        } else if (supportingFile.FileType == "record") {
+                            return <tr><td><span className="pt-button pt-minimal pt-icon-document" title={supportingFile.FileName[0]} onClick={() => onFeatureSupportingFileClick(supportingFile.FileName[0])} style={{ fontSize: "xx-small" }}>{fileName}</span></td><td>{supportingFile.FileStatus[0]}</td><td>{supportingFile.FileComment[0]}</td></tr>;
+                        } else if (supportingFile.FileType == "Objective" || supportingFile.FileType == "Document") {
+                            return <tr><td><span className="pt-button pt-minimal pt-icon-box" title={supportingFile.FileName[0]} onClick={() => onFeatureSupportingFileClick("https://objective.portbris.com.au:8443/id:" + supportingFile.FileName[0] + "/document/versions/latest")} style={{ fontSize: "xx-small" }}>{fileName}</span> <span className="pt-button pt-minimal pt-icon-info-sign" title={supportingFile.file[0]} onClick={() => this.openDocumentUrlInModal("https://objective.portbris.com.au/#/documents/" + supportingFile.file[0] + "/details")}></span></td><td>{supportingFile.FileStatus[0]}</td><td>{supportingFile.FileComment[0]}</td></tr>;
+                        }
+                    })}
+                </tbody>
+            </table>
+        </td>
+    </tr>;
+}
 
 /**
  * SelectionPanel component props
@@ -85,6 +182,8 @@ export interface ISelectionPanelProps {
      * @memberof ISelectionPanelProps
      */
     cleanHTML?: (html: string) => string;
+    onSupportingFileClick?: (selectedURL: string) =>void;
+    
 }
 
 interface ISelectionPanel {
@@ -221,8 +320,14 @@ export class SelectionPanel extends React.Component<ISelectionPanelProps, any> {
     private onSelectedLayerChanged = (e: GenericEvent) => {
         this.setState({ selectedLayerIndex: e.target.value, featureIndex: 0 });
     }
+
+    // private onSupportingFileClick = (e:GenericEvent)=>{
+    //    alert(e)
+    // }
+
+
     render(): JSX.Element {
-        const { selection, selectedFeatureRenderer, allowHtmlValues, cleanHTML } = this.props;
+        const { selection, selectedFeatureRenderer, allowHtmlValues, cleanHTML, onSupportingFileClick } = this.props;
         let locale = this.props.locale || DEFAULT_LOCALE;
         let feat: SelectedFeature | undefined;
         let meta: LayerMetadata | undefined;
@@ -267,9 +372,11 @@ export class SelectionPanel extends React.Component<ISelectionPanelProps, any> {
                 {(() => {
                     if (feat && meta) {
                         if (selectedFeatureRenderer) {
-                            return selectedFeatureRenderer({ selectedFeature: feat, cleanHTML: cleanHTML, allowHtmlValues: allowHtmlValues, selectedLayer: meta, locale: locale });
+                            if(this.onSelectedLayerChanged !== undefined){
+                                return selectedFeatureRenderer({ selectedFeature: feat, cleanHTML: cleanHTML, allowHtmlValues: allowHtmlValues, selectedLayer: meta, locale: locale, onSupportingFileClick: onSupportingFileClick  });
+                            }
                         } else {
-                            return <DefaultSelectedFeature selectedFeature={feat} cleanHTML={cleanHTML} allowHtmlValues={allowHtmlValues} selectedLayer={meta} locale={locale} />;
+                            return <DefaultSelectedFeature selectedFeature={feat} cleanHTML={cleanHTML} allowHtmlValues={allowHtmlValues} selectedLayer={meta} locale={locale} onSupportingFileClick={onSupportingFileClick}  />;
                         }
                     } else if (selection == null || (selection.SelectedLayer || []).length == 0) {
                         return <div className="pt-callout pt-intent-primary pt-icon-info-sign">

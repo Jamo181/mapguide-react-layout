@@ -37,7 +37,7 @@
                 });
             }
         </script>
-        <script type="text/javascript" src="dist/viewer.js" charset="utf-8"></script>
+        <script type="text/javascript" src="dist/viewer-debug.js" charset="utf-8"></script>
         <style type="text/css">
             html,
             body,
@@ -76,11 +76,7 @@
                 right:45px;
             }
 
-            .sidebar.collapsed.sidebar-left {
-                width: 45px;
-            }
-
-            .sidebar.collapsed.sidebar-right {
+            .sidebar.collapsed {
                 width: 45px;
             }
 
@@ -106,38 +102,20 @@
             }
 
             @media (min-width: 768px) and (max-width: 991px) {
-                .sidebar.sidebar-left{
+                .sidebar {
                     width: 305px;
-                }
-                .sidebar.sidebar-right{
-                    width: 405px;
                 }
             }
 
             @media (min-width: 992px) and (max-width: 1199px) {
-                .sidebar.sidebar-left{
+                .sidebar {
                     width: 390px;
                 }
-                .sidebar.sidebar-right{
-                    width: 495px;
-                }
             }
 
-            @media (min-width: 1200px) and (max-width: 1599px) {
-                .sidebar.sidebar-left{
+            @media (min-width: 1200px) {
+                .sidebar {
                     width: 460px;
-                }
-                .sidebar.sidebar-right{
-                    width: 605px;
-                }
-            }
-
-            @media (min-width: 1600px) {
-                .sidebar.sidebar-left{
-                    width: 500px;
-                }
-                .sidebar.sidebar-right{
-                    width: 1005px;
                 }
             }
 

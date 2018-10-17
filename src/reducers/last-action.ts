@@ -17,6 +17,7 @@ export function lastAction(state = null, action: ViewerAction) {
             case ActionType.MAP_SET_SELECTION:
             case ActionType.MAP_SET_MAPTIP:
             case ActionType.MAP_SET_ACTIVE_TOOL:
+            case ActionType.PBPL_SHOW_URL:
                 return action;
         }
     }

@@ -3,6 +3,7 @@ import { connect } from "react-redux";
 import { SelectionPanel, ISelectedFeatureProps } from "../components/selection-panel";
 import { QueryMapFeaturesResponse, SelectedFeature } from "../api/contracts/query";
 import * as MapActions from "../actions/map";
+import * as PBPLActions from "../actions/pbpl";
 import { getViewer } from "../api/runtime";
 import { tr, DEFAULT_LOCALE } from "../api/i18n";
 import {
@@ -27,6 +28,7 @@ export interface ISelectionPanelContainerState {
 export interface ISelectionPanelContainerDispatch {
     setCurrentView: (view: IMapView) => void;
     showSelectedFeature: (mapName: string, layerId: string, featureIndex: number) => void;
+    supportingFileClick?: (selectedURL:string) => void;
 }
 
 function mapStateToProps(state: Readonly<IApplicationState>, ownProps: ISelectionPanelContainerProps): Partial<ISelectionPanelContainerState> {
@@ -39,7 +41,8 @@ function mapStateToProps(state: Readonly<IApplicationState>, ownProps: ISelectio
 function mapDispatchToProps(dispatch: ReduxDispatch): Partial<ISelectionPanelContainerDispatch> {
     return {
         setCurrentView: (view) => dispatch(MapActions.setCurrentView(view)),
-        showSelectedFeature: (mapName, layerId, featureIndex) => dispatch(MapActions.showSelectedFeature(mapName, layerId, featureIndex))
+        showSelectedFeature: (mapName, layerId, featureIndex) => dispatch(MapActions.showSelectedFeature(mapName, layerId, featureIndex)),
+        supportingFileClick: (selectedURL:string) => dispatch(PBPLActions.showURL(selectedURL))
     };
 }
 
@@ -65,6 +68,14 @@ export class SelectionPanelContainer extends React.Component<SelectionPanelConta
             showSelectedFeature(config.activeMapName, layerId, featureIndex);
         }
     }
+
+    private onSupportingFileClick = (selectedURL: string) => {
+        const { supportingFileClick } = this.props;
+        if (supportingFileClick && selectedURL.length>0) {
+            supportingFileClick(selectedURL);
+        }
+    }
+
     private getLocale(): string {
         return this.props.config ? this.props.config.locale : DEFAULT_LOCALE;
     }
@@ -80,7 +91,9 @@ export class SelectionPanelContainer extends React.Component<SelectionPanelConta
                                    onRequestZoomToFeature={this.onZoomToSelectedFeature}
                                    onShowSelectedFeature={this.onShowSelectedFeature}
                                    selectedFeatureRenderer={this.props.selectedFeatureRenderer}
-                                   maxHeight={maxHeight} />;
+                                   maxHeight={maxHeight}
+                                   onSupportingFileClick={this.props.supportingFileClick}
+                                   />;
         } else {
             return <div className="pt-callout pt-intent-primary pt-icon-info-sign">
                 <p className="selection-panel-no-selection">{tr("NO_SELECTED_FEATURES", locale)}</p>

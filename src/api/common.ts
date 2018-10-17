@@ -16,6 +16,8 @@ import olOverlay from "ol/overlay";
 import { IOLFactory } from "./ol-factory";
 import { ViewerAction } from '../actions/defs';
 
+import { Plan } from './contracts/pbpl/planregister'
+
 // Event boilerplate
 export type GenericEvent = any;
 
@@ -1024,6 +1026,15 @@ export type IModalReducerState = {
     [key: string]: IModalDisplayOptions | IModalComponentDisplayOptions;
 };
 
+export type IPBPLReducerState = {
+    /**
+     * PBPL state objects
+     * ToDo: Make this more generic ... Plan / OBJ / Whatever ...
+     */
+    // selectedPlan?: Plan;
+    selectedURL: string;
+};
+
 /*
 export interface IModalReducerState {
 
@@ -1709,6 +1720,8 @@ export interface IApplicationState {
      * @memberof IApplicationState
      */
     lastaction: any;
+
+    pbpl: Readonly<IPBPLReducerState>;
 }
 
 // Redux typedefs to tighten up our redux code
